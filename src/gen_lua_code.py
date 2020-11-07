@@ -84,7 +84,8 @@ end'''
         code = '''
 ---@return string
 function {cls_name}:serialize()
-    local msg = {{}}'''.format(cls_name=self.cls_name)
+    local msg = {{}}
+    msg["__msg__"] = "{cls_name}"'''.format(cls_name=self.cls_name)
         for (value_name, value) in fields.items():
             if util.is_custom_class(value):
                 code += '''

@@ -84,7 +84,7 @@ class {cls_name}:
         code = '''
     def serialize(self):
         msg = {{}}
-        msg["name"] = "{cls_name}"'''.format(cls_name=self.cls_name)
+        msg["__msg__"] = "{cls_name}"'''.format(cls_name=self.cls_name)
         for (name, value) in fields.items():
             code += '''
         if self._has_{name}:'''.format(name=name)
