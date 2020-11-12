@@ -1,14 +1,24 @@
-require("out.app_server_info")
-local app_svr_info = NetMessageAppServerInfo.new()
-local msg_slots = NetMessageSlots.new()
-msg_slots:set_test1({1,2,3})
-msg_slots:set_test2({k='v'})
+local protocol = require("lua.app_server_info")
+local json = require("cjson")
 
-local msg_spin_server = NetMessageSpinServer.new()
-msg_spin_server:set_slots(msg_slots)
+local apple_lst = {}
+for i=1, 3 do
+    local apple = protocol.new_Apple()
+    apple:set_weight(19.99)
+    local seed = protocol.new_Seed()
+    seed:set_size(5)
+    apple:set_seed(seed)
+    apple_lst[i] = apple
+end
 
-app_svr_info:set_spin_server(msg_spin_server)
-local msg = app_svr_info:serialize()
-print(msg)
-msg = NetMessageAppServerInfo.new():parse(msg)
-print(msg:serialize())
+local fruit = protocol.new_Fruit()
+fruit:set_basket_1(apple_lst)
+local apple = fruit:get_basket_1()[1]   ---@type Apple
+print('apple.weight:', apple:get_weight())
+print('seed.size:', apple:get_seed():get_size())
+
+local msg = fruit:serialize()
+print(json.encode(msg))
+
+msg = protocol.parse(msg)
+print(json.encode(msg:serialize()))

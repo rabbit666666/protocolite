@@ -1,19 +1,35 @@
 import json
 from src import util
 
-def to_py_value(value):
-    if type(value) in [str, int, float]:
-        py_value = json.dumps(value)
-    elif type(value) in [list]:
+def to_py_value(hint_info):
+    t = hint_info['type']
+    if t in [str, int, float, bool]:
+        py_value =  hint_info['def_value']
+        if py_value is not None:
+            py_value = json.dumps(py_value)
+    elif t in [list] or type(t) in [list]:
         py_value = []
-    elif type(value) in [dict]:
-        py_value = {}
+    elif t in [dict]:
+        assert False, "unsupport dict, please use class insted it."
     else:
-        py_value = '{}()'.format(type(value).__name__)
+        py_value = '{}()'.format(t.__name__)
     return py_value
 
+def get_py_type(hint_info):
+    t = hint_info['type']
+    if isinstance(t, type):
+        return t
+    else:
+        return type(t)
+
 def get_python_prefix():
-    return 'import json\n'
+    code = '''
+import json
+def parse(msg):
+    msg_name = msg["__msg__"]
+    obj = globals()[msg_name]()
+    return obj.parse(msg)'''
+    return code
 
 class PyCodeGenerator:
     def __init__(self):
@@ -34,7 +50,7 @@ class {cls_name}:
     {serialize_code}
         '''.format(cls_name=self.cls_name, fields_code=field_code, setget_code=setget_code,
                    parse_code=parse_code, serialize_code=serialize_code)
-        print(code)
+        #print(code)
         return code
 
     def _gen_fields(self, fields):
@@ -49,6 +65,7 @@ class {cls_name}:
     def _gen_getter_setter(self, fields):
         setter_getter_code = []
         for (name, value) in fields.items():
+            t = get_py_type(value)
             member = '''
     def set_{name}(self, value):
         assert isinstance(value, {value_type}), "set_{name}. need {value_type}, but pass:{{}}".format(type(value))
@@ -58,19 +75,25 @@ class {cls_name}:
         return self._{name}
     def has_{name}(self):
         return self._has_{name}
-    '''.format(name=name, value_type=type(value).__name__)
+    '''.format(name=name, value_type=t.__name__)
             setter_getter_code.append(member)
         return ''.join(setter_getter_code)
 
     def _gen_parse_code(self, fields):
         code = '''
-    def parse(self, msg):        
-        msg = json.loads(msg)'''
-        for (name, value) in fields.items():
+    def parse(self, msg):
+        if isinstance(msg, str):        
+            msg = json.loads(msg)'''
+        for (name, hint) in fields.items():
             code += '''
         if "{name}" in msg:
             self._has_{name} = True'''.format(name=name)
-            if util.is_custom_class(value):
+            if util.is_custom_class_array(hint):
+                code += '''
+            self._{name} = []
+            for x in msg["{name}"]:
+                self._{name}.append({ele_type}().parse(x))'''.format(name=name, ele_type=hint['type'][0].__name__)
+            elif util.is_custom_class(hint):
                 code += '''            
             self._{name}.parse(msg["{name}"])'''.format(name=name)
             else:
@@ -88,12 +111,18 @@ class {cls_name}:
         for (name, value) in fields.items():
             code += '''
         if self._has_{name}:'''.format(name=name)
-            if util.is_custom_class(value):
+            if util.is_custom_class_array(value):
+                code += '''
+            _{name} = []
+            for x in self._{name}:
+                _{name}.append(x.serialize())
+            msg["{name}"] = _{name}'''.format(name=name)
+            elif util.is_custom_class(value):
                 code += '''        
             msg["{name}"] = self._{name}.serialize()'''.format(name=name)
             else:
                 code += '''
             msg["{name}"] = self._{name}'''.format(name=name)
         code += '''
-        return json.dumps(msg)'''
+        return msg'''
         return code

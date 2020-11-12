@@ -1,14 +1,15 @@
-from out.app_server_info import *
+import py.app_server_info as proto
 
 if __name__ == '__main__':
-    app_svr_info = NetMessageAppServerInfo()
-    msg_slots = NetMessageSlots()
-    msg_slots.set_test1([1, 2, 3])
-    msg_slots.set_test2({'k': 'v'})
-    msg_spin_server = NetMessageSpinServer()
-    msg_spin_server.set_slots(msg_slots)
-    app_svr_info.set_spin_server(msg_spin_server)
-    msg = app_svr_info.serialize()
+    apples = []
+    for _ in range(3):
+        apple = proto.Apple()
+        apple.set_weight(19.99)
+        apples.append(apple)
+
+    fruit = proto.Fruit()
+    fruit.set_basket_1(apples)
+    msg = fruit.serialize()
     print(msg)
-    msg = NetMessageAppServerInfo().parse(msg)
+    msg = proto.Fruit().parse(msg)
     print(msg.serialize())

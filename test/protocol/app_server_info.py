@@ -1,11 +1,13 @@
+from typing import List
 
-class NetMessageSlots:
-    test1 = []
-    test2 = {}
+class Seed:
+    size: int
 
-class NetMessageSpinServer:
-    slots = NetMessageSlots()
+class Apple:
+    weight: float
+    seed: Seed
 
-class NetMessageAppServerInfo:
-    spin_server = NetMessageSpinServer()
-    apk_name = ''
+class Fruit:
+    total_weight: float
+    kinds: [str]
+    basket_1: [Apple]

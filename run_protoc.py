@@ -2,9 +2,10 @@ import os
 import sys
 import importlib
 import inspect
+import typing
 from src import util
 from src.gen_python_code import PyCodeGenerator, get_python_prefix
-from src.gen_lua_code import LuaCodeGenerator, get_lua_prefix
+from src.gen_lua_code import LuaCodeGenerator, get_lua_prefix, get_lua_suffix
 import argparse
 import argcomplete
 import shutil
@@ -25,12 +26,13 @@ def main(root, py_out, lua_out):
             continue
         module_path = util.to_module_name(file)
         module = importlib.import_module(module_path)
-        cls_lst = inspect.getmembers(module, inspect.isclass)
+        cls_lst = util.get_protocol_class(module)
         py_code = get_python_prefix()
         lua_code = get_lua_prefix()
-        for (cls_name, cls_info) in cls_lst:
+        for cls_info in cls_lst:
             py_code = py_code + PyCodeGenerator().gen(cls_info)
             lua_code = lua_code + LuaCodeGenerator().gen(cls_info)
+        lua_code += get_lua_suffix()
         out_code(py_out, file, py_code, '.py')
         out_code(lua_out, file, lua_code, '.lua')
 
