@@ -3,7 +3,8 @@ A tool for generate net message from protocol define to lua table or python dict
 * protocol define in python.
 * output python and lua code for parsing and serializing.
 * the setter function will check input type.
-* example of protocol define.
+
+An example of protocol define.
 ```python
 class Apple:
     name: str
@@ -14,7 +15,6 @@ class Pair:
     name: str
     weight: float
     size: float
-
 
 class Basket:
     apples: [Apple]
