@@ -1,3 +1,5 @@
 .idea
 __pycache__
 out
+test/py
+test/lua
