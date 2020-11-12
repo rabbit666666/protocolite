@@ -1,13 +1,17 @@
-from typing import List
 
-class Seed:
-    size: int
-
+##################################
+## Example1
 class Apple:
+    name: str
     weight: float
-    seed: Seed
+    size: float
 
-class Fruit:
-    total_weight: float
-    kinds: [str]
-    basket_1: [Apple]
+class Pair:
+    name: str
+    weight: float
+    size: float
+
+
+class Basket:
+    apples: [Apple]
+    pairs: [Pair]
