@@ -2,14 +2,15 @@ import py.app_server_info as proto
 
 if __name__ == '__main__':
     apples = []
-    for _ in range(3):
+    for i in range(3):
         apple = proto.Apple()
-        apple.set_weight(19.99)
+        apple.set_name("apple_{}".format(i))
+        apple.set_size(float(i + 1))
+        apple.set_weight(float(10))
         apples.append(apple)
-
-    fruit = proto.Fruit()
-    fruit.set_basket_1(apples)
-    msg = fruit.serialize()
+    basket = proto.Basket()
+    basket.set_apples(apples)
+    msg = basket.serialize()
     print(msg)
-    msg = proto.Fruit().parse(msg)
+    msg = proto.Basket().parse(msg)
     print(msg.serialize())

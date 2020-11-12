@@ -11,7 +11,6 @@ class Pair:
     weight: float
     size: float
 
-
 class Basket:
     apples: [Apple]
     pairs: [Pair]

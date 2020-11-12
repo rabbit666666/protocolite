@@ -4,20 +4,19 @@ local json = require("cjson")
 local apple_lst = {}
 for i=1, 3 do
     local apple = protocol.new_Apple()
-    apple:set_weight(19.99)
-    local seed = protocol.new_Seed()
-    seed:set_size(5)
-    apple:set_seed(seed)
+    apple:set_name("apple_" .. i)
+    apple:set_size(i)
+    apple:set_weight(10)
     apple_lst[i] = apple
 end
 
-local fruit = protocol.new_Fruit()
-fruit:set_basket_1(apple_lst)
-local apple = fruit:get_basket_1()[1]   ---@type Apple
+local basket = protocol.new_Basket()
+basket:set_apples(apple_lst)
+local apple = basket:get_apples()[1]   ---@type Apple
+print('apple.name:', apple:get_name())
 print('apple.weight:', apple:get_weight())
-print('seed.size:', apple:get_seed():get_size())
 
-local msg = fruit:serialize()
+local msg = basket:serialize()
 print(json.encode(msg))
 
 msg = protocol.parse(msg)
